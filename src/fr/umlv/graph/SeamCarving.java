@@ -1,12 +1,54 @@
 package fr.umlv.graph;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
+
 public class SeamCarving {
+	
+	public static void writepgm(int [][] image, String filename){
+		  try (BufferedWriter writer = new BufferedWriter( new FileWriter(new File(filename)))){
+			  int i, j;
+			  writer.write("P2");
+			  writer.newLine();
+			  
+			  writer.write(Integer.toString(image[0].length) + ' ' + Integer.toString(image.length));
+			  writer.newLine();
+			  
+			  writer.write(Integer.toString(maxTab2D(image)));
+			  writer.newLine();
+			  
+			  for (i = 0; i < image.length; i++){
+				  for (j = 0; j < image[i].length; j++)
+					  writer.write (Integer.toString(image[i][j]) + ' ');
+				  writer.newLine();
+			  }
+			  
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}		  
+	  }
+  
+	  private static int maxTab2D(int img [][]){
+		  int max;
+		  max = img[0][0];
+		  int i,j;
+		  for (i = 0; i < img.length; i++)
+			  for (j = 0; j < img[i].length; j++)
+				  if (max < img[i][j])
+					  max = img[i][j];
+		  
+		  return max;		  
+	  }
+	  
   public static int[][] readpgm(Path path) throws IOException {
     try(BufferedReader reader = Files.newBufferedReader(path)) {
       reader.readLine();  // magic
@@ -19,7 +61,7 @@ public class SeamCarving {
       Scanner scanner = new Scanner(line);
       int width = scanner.nextInt();
       int height = scanner.nextInt();
-      
+       
       line = reader.readLine();
       scanner = new Scanner(line);
       scanner.nextInt();  // maxVal
@@ -57,5 +99,18 @@ public class SeamCarving {
 	}
 	 
 	return image; 
+  }
+  
+  public static void main(String[] args) {
+	  Path path = Paths.get("ex1.pgm");
+	  int img[][];
+	  try {
+		img = readpgm(path);
+		writepgm (img, "exemple.pgm");
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	System.out.println("OK");  
   }
 }
