@@ -36,4 +36,8 @@ public class Edge {
 	public int other(int v) {
 		return (from == v)? to: from;
 	}
+	
+	public static Edge max (Edge x, Edge y) {
+		return (((x.capacity - x.used) - (y.capacity - y.used)) > 0) ? x : y;
+	}
 }
