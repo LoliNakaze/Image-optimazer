@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class Graph {
 	private final ArrayList<ArrayList<Edge>> adjacenyList;
-	private final static int INFINI = 256;
+	final static int INFINI = 256;
 	private final static int SOURCE = 0;
 	private final static int TARGET = 1;
 	
@@ -104,8 +104,8 @@ public class Graph {
 	 */
 	private ArrayList<Edge> findPath () {
 		ArrayList<Edge> path = new ArrayList<>();
-		int vertMax = vertices() - 2;
-		boolean visited[] = new boolean [vertMax];
+		int vertMax = vertices() - 1;
+		boolean visited[] = new boolean [vertMax - 1];
 		Edge nextEdge = null;
 		int nextVertice;
 		
@@ -122,8 +122,9 @@ public class Graph {
 			return null; // No path available
 		nextVertice = start.to;
 		path.add(start);
+		path.add(adjacenyList.get(SOURCE).stream().filter(e -> e.to == start.from).findFirst().get());
 		
-		for (int i = 0 ; i < vertMax && (null != (nextEdge = findNextNonFullEdge(nextVertice, visited, adjacenyList.get(nextVertice)))) && nextVertice != TARGET ; i++ , path.add(nextEdge));
+		for (int i = 0 ; i < vertMax + 1 && (null != (nextEdge = findNextNonFullEdge(nextVertice, visited, adjacenyList.get(nextVertice)))) && nextVertice != TARGET ; i++ , path.add(nextEdge));
 		//	Find next edge :
 		//		if [not null] and [next vertice is not the target],
 		// 		then [add next edge in the path] and proceed.
@@ -134,25 +135,50 @@ public class Graph {
 	}
 	
 	/**
-	 * Modify the used capacity of the <b>edge</b> by adding or subtracting <b>value</b> from it,
-	 * whether the <b>current</b> vertice is the source of this edge.<br>
-	 * <br>
-	 * It is <u>added</u> when the current vertice is the source, <u>subtracted</u> otherwise.
-	 * 
-	 * @param current : The current vertice
-	 * @param mod : The modified Edge
-	 * @param value : The value applied
+	 * Returns a minimal cut of this graph.
+	 * @return The list of Edges cut
 	 */
-	private static void modEdge (int current, Edge mod, int value) {
-		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
+	public ArrayList<Edge> minimalCut () {
+		ArrayList<Edge> path;
+		ArrayList<Edge> cut = new ArrayList <>();
+		
+		while (null != (path = findPath())) { // While there is a positive path
+			int min = INFINI;
+			int last = path.get(0).from;
+			Iterator<Edge> it = path.iterator();
+			
+			while (it.hasNext()) {
+				Edge edge = it.next();
+				int plusValue = Edge.getPlusValueEdge(last, edge);
+				
+				last = edge.other(last);
+				
+				if (min > plusValue)
+					min = plusValue;
+			}
+			
+			// Here, minimum get!
+			last = path.get(0).from;
+			
+			it = path.iterator();
+			while (it.hasNext()) {
+				Edge edge = it.next();
+				
+				Edge.modEdge(last, edge, min);
+				
+				last = edge.other(last);
+			}
+		}
+		
+		// When there is no path found, the minimal cut can be found.
+		for (int i = 0 ; i < adjacenyList.get(SOURCE).size() ; i++) {
+			ArrayList<Edge> tmp = adjacenyList.get(adjacenyList.get(SOURCE).get(i).to);
+			
+			
+		}
+		//TODO GET THE MINIMAL CUT
+		return null;
 	}
-	
-//	public int[] minimalCut () {
-//		ArrayList<Edge> path;
-//		while (null != (path = findPath())) { // While there is a positive path
-//			int min =
-//		}
-//	}
 	
 	public void writeFile(Path path) throws IOException {
 		try(BufferedWriter writer = Files.newBufferedWriter(path);
