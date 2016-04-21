@@ -135,6 +135,19 @@ public class Graph {
 	}
 	
 	/**
+	 * Returns the next non infinite edge, which capacity is not infinite.
+	 * @param adjacent : an ArrayList of adjacent edges.
+	 * @return A finite Edge.
+	 */
+	private Edge nextFiniteEdge (ArrayList<Edge> adjacent) {
+		return adjacent.stream().filter(e -> e.capacity != INFINI).findFirst().get();
+	}
+	
+	private boolean maxedEdge (Edge edge) {
+		return edge.capacity == edge.used;
+	}
+	
+	/**
 	 * Returns a minimal cut of this graph.
 	 * @return The list of Edges cut
 	 */
@@ -173,11 +186,16 @@ public class Graph {
 		// When there is no path found, the minimal cut can be found.
 		for (int i = 0 ; i < adjacenyList.get(SOURCE).size() ; i++) {
 			ArrayList<Edge> tmp = adjacenyList.get(adjacenyList.get(SOURCE).get(i).to);
+			Edge e;
 			
+			while (!maxedEdge (e = nextFiniteEdge(tmp))) {
+				tmp = adjacenyList.get(e.other(e.from));
+			}
 			
+			cut.add(e);
 		}
 		//TODO GET THE MINIMAL CUT
-		return null;
+		return cut;
 	}
 	
 	public void writeFile(Path path) throws IOException {
