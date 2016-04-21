@@ -13,10 +13,12 @@ public class Graph {
 	private final ArrayList<ArrayList<Edge>> adjacenyList;
 	final static int INFINI = 256;
 	private final static int SOURCE = 0;
-	private final static int TARGET = 1;
+	private final int TARGET;
 	
 	public Graph(int vertexCount) {
+		TARGET = vertexCount - 1;
 		adjacenyList = new ArrayList<>(vertexCount);
+		
 		for (int v = 0; v < vertexCount; v++)
 			adjacenyList.add(new ArrayList<>());
 	}
@@ -43,6 +45,19 @@ public class Graph {
 			}
 		}
 		return list;
+	}
+	
+	public static Graph toGraph (int[][] itr) {
+		Graph graph = new Graph (itr.length * itr[0].length + 2);
+		int i;
+		
+		// SOURCE, TARGET
+		for (i = 0 ; i < itr[0].length ; i++) {
+			graph.adjacenyList.get(SOURCE).add(new Edge (SOURCE, i+1, INFINI, 0));
+			graph.adjacenyList.get(graph.TARGET).add(new Edge ((itr.length - 1) * itr[0].length + i + 1, graph.TARGET, itr[(itr.length - 1)][i], 0));
+		}
+		
+		// 
 	}
 	
 	/**
