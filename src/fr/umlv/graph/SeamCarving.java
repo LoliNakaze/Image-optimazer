@@ -81,13 +81,16 @@ public class SeamCarving {
 		for (int i = 0 ; i < image.length ; i++) {
 			int j;
 		
-			if (image[i].length > 2) {
+			if (image[i].length >= 2) {
 				tmp[0] = Math.abs(image[i][0] - image[i][1]); 
 	
 				for (j = 1 ; j < image[i].length - 1; j++)
-					tmp[j] = Math.abs(image[i][j] - (image[i][j-1] + image[i][j+1])/2);
+					tmp[j] = Math.abs(image[i][j] - ((image[i][j-1] + image[i][j+1])/2));
 		
 				tmp[j] = Math.abs(image[i][j-1] - image[i][j]);
+			}
+			else {
+				tmp[0] = image[i][0];
 			}
 	
 			for (j = 0 ; j < image[i].length ; j++)
@@ -97,12 +100,21 @@ public class SeamCarving {
 		return image; 
 	}
 
+	public static void print2DTable (int table[][]) {
+		for (int i = 0 ; i < table.length ; i++) {
+			for (int j = 0 ; j < table[i].length ; j++)
+				System.out.print(table[i][j] + " ");
+			System.out.println();	
+		}
+	}
+	
 	public static void main(String[] args) {
-		Path path = Paths.get("ex1.pgm");
+		Path path = Paths.get("test.pgm");
 		int img[][];
 		try {
 			img = readpgm(path);
-			writepgm (img, "exemple.pgm");
+			print2DTable (interest(img));
+			writepgm (img, "test2.pgm");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
