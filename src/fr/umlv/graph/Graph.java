@@ -49,7 +49,7 @@ public class Graph {
 	}
 	
 	public Graph toGraph (int [][] itr){
-		int i;
+		int i, j;
 		int line, col;
 		
 		line = itr.length;
@@ -60,8 +60,22 @@ public class Graph {
 			g.addEdge(new Edge ((line - 1) * col + i + 1, g.TARGET, itr[(line - 1)][i], 0));
 		}
 		
-		for (i = 0; i < col; i++){
-//			g.addEdge(new Edge(i + 1, g.vertices() - 1), itr[]);
+		for (i = 1; i <= line; i++){
+			for (j = 1; j <= col; j++){
+				if (line != i)
+					g.addEdge(new Edge(j, j + col, itr[i-1][j-1], 0));
+				
+				if (col != j && line != i)
+					g.addEdge(new Edge( j, j + col + 1, INFINI, 0));
+				
+				if (1 == i)
+					continue;
+				
+				g.addEdge(new Edge( j, j - col, INFINI, 0));
+				
+				if (col != j)
+					g.addEdge(new Edge( j, j - col - 1, INFINI, 0));
+			}
 		}
 
 		return g;
