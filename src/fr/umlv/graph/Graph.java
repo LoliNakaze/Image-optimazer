@@ -14,6 +14,7 @@ public class Graph {
 	final static int INFINI = 256;
 	private final static int SOURCE = 0;
 	private final int TARGET;
+
 	
 	public Graph(int vertexCount) {
 		TARGET = vertexCount - 1;
@@ -47,18 +48,40 @@ public class Graph {
 		return list;
 	}
 	
-	public static Graph toGraph (int[][] itr) {
-		Graph graph = new Graph (itr.length * itr[0].length + 2);
-		int i;
+	public Graph toGraph (int [][] itr){
+		int i, j;
+		int line, col;
 		
-		// SOURCE, TARGET
-		for (i = 0 ; i < itr[0].length ; i++) {
-			graph.adjacenyList.get(SOURCE).add(new Edge (SOURCE, i+1, INFINI, 0));
-			graph.adjacenyList.get(graph.TARGET).add(new Edge ((itr.length - 1) * itr[0].length + i + 1, graph.TARGET, itr[(itr.length - 1)][i], 0));
+		line = itr.length;
+		col = itr[0].length;
+		Graph g = new Graph (line * col + 2); // on veut un sommet par pixel donc on calcule le nombre de pixel avec itr et on ajoute les deux sommets s et t
+		for (i = 0; i < col; i++){
+			g.addEdge(new Edge(SOURCE, i+1, INFINI , 0));
+			g.addEdge(new Edge ((line - 1) * col + i + 1, g.TARGET, itr[(line - 1)][i], 0));
 		}
 		
-		// 
+		for (i = 1; i <= line; i++){
+			for (j = 1; j <= col; j++){
+				if (line != i)
+					g.addEdge(new Edge(j, j + col, itr[i-1][j-1], 0));
+				
+				if (col != j && line != i)
+					g.addEdge(new Edge( j, j + col + 1, INFINI, 0));
+				
+				if (1 == i)
+					continue;
+				
+				g.addEdge(new Edge( j, j - col, INFINI, 0));
+				
+				if (col != j)
+					g.addEdge(new Edge( j, j - col - 1, INFINI, 0));
+			}
+		}
+
+		return g;
+		
 	}
+
 	
 	/**
 	 * Find the next edge to take, by choosing the one with :<br>
@@ -220,7 +243,7 @@ public class Graph {
 		//TODO GET THE MINIMAL CUT
 		return cut;
 	}
-	
+
 	public void writeFile(Path path) throws IOException {
 		try(BufferedWriter writer = Files.newBufferedWriter(path);
 			PrintWriter printer = new PrintWriter(writer)) {
