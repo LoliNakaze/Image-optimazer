@@ -161,14 +161,13 @@ public class Graph {
 	private boolean maxedEdge (Edge edge) {
 		return edge.capacity == edge.used;
 	}
+
+	public int getCurrentStreamValue () {
+		return adjacenyList.get(TARGET).stream().map(e -> e.used).reduce(0, Integer::sum);
+	}
 	
-	/**
-	 * Returns a minimal cut of this graph.
-	 * @return The list of Edges cut
-	 */
-	public ArrayList<Edge> minimalCut () {
+	private void fillGraph () {
 		ArrayList<Edge> path;
-		ArrayList<Edge> cut = new ArrayList <>();
 		
 		while (null != (path = findPath())) { // While there is a positive path
 			int min = INFINI;
@@ -197,7 +196,16 @@ public class Graph {
 				last = edge.other(last);
 			}
 		}
+	}
+	
+	/**
+	 * Returns a minimal cut of this graph.
+	 * @return The list of Edges cut
+	 */
+	public ArrayList<Edge> minimalCut () {
+		ArrayList<Edge> cut = new ArrayList <>();
 		
+		fillGraph();
 		// When there is no path found, the minimal cut can be found.
 		for (int i = 0 ; i < adjacenyList.get(SOURCE).size() ; i++) {
 			ArrayList<Edge> tmp = adjacenyList.get(adjacenyList.get(SOURCE).get(i).to);
