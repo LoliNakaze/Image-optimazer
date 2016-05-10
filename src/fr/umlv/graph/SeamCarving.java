@@ -110,10 +110,12 @@ public class SeamCarving {
 	
 	public static void main(String[] args) {
 		Path path = Paths.get("test.pgm");
+		Graph g;
 		int img[][];
 		try {
 			img = readpgm(path);
-			print2DTable (interest(img));
+			g = Graph.toGraph(interest(img));
+			g.writeFile(Paths.get("testex.dot"));
 			writepgm (img, "test2.pgm");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

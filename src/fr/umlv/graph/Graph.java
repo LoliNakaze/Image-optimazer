@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Graph {
 	private final ArrayList<ArrayList<Edge>> adjacenyList;
@@ -48,7 +50,7 @@ public class Graph {
 		return list;
 	}
 	
-	public Graph toGraph (int [][] itr){
+	public static Graph toGraph (int [][] itr){
 		int i, j;
 		int line, col;
 		
@@ -77,12 +79,10 @@ public class Graph {
 					g.addEdge(new Edge( j, j - col - 1, INFINI, 0));
 			}
 		}
-
-		return g;
 		
+		return g;		
 	}
 
-	
 	/**
 	 * Find the next edge to take, by choosing the one with :<br>
 	 * <li>the greatest capacity, if it's an edge from <b>current</b><br>
@@ -137,17 +137,73 @@ public class Graph {
 	}
 	
 	/**
+	 * @param source One vertice.
+	 * @param other The other vertice.
+	 * @return Returns the edge which links source and other.<br>
+	 * Returns <i>null</i> if the edge doesn't exist.
+	 */
+	private Edge findEdge (int source, int other) {
+		Iterable<Edge> tmp = adjacent(source);
+		
+		for (Edge edge : tmp) {
+			if (edge.from == other || edge.to == other) {
+				return edge;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Finds a path from the source to the target, by taking the largest edge available.
 	 * @return The list of edges of the path.
 	 */
 	private ArrayList<Edge> findPath () {
 		ArrayList<Edge> path = new ArrayList<>();
-		int vertMax = vertices() - 1;
-		boolean visited[] = new boolean [vertMax - 1];
-		Edge nextEdge = null;
-		int nextVertice;
+		int vertMax = vertices();
+//		boolean visited[] = new boolean [vertMax]; // Init: false
+		int father[] = new int[vertMax];
+		int next;
+		
+		Queue<Integer> queue = new PriorityQueue<>();
+//		Edge nextEdge = null;
+//		int nextVertice;
+		int i;
+		
+		// Init
+		for (i = 0 ; i < vertMax ; i++) {
+			father[i] = -1;
+		}
+		
+		// Source
+		queue.add(SOURCE);
+		
+		while (father[TARGET] == -1 && false == queue.isEmpty()) {
+			next = queue.poll();
+//			visited[next] = true;
+			Iterable<Edge> tmp = adjacent(next);
+			
+			for (Edge edge : tmp) {
+				if (father[edge.to] == -1) { // Not visited
+					queue.add(edge.to);
+					father[edge.to] = next;
+				}
+			}
+		}
+		
+		if (father[TARGET] != -1) {
+			next = TARGET;
+			
+			while (next != SOURCE) {
+				path.add(findEdge(next, father[next]));
+			}
+			
+			return path;
+		}
+		return null; // No path found.
 		
 		// Choose first element
+		/*
 		ArrayList<Edge> list = new ArrayList<>();
 		for (Edge edge : adjacent(SOURCE)) { // For each left vertice
 			Edge to = adjacenyList.get(edge.to).stream().filter(x -> edge.to == x.from).findFirst().get();
@@ -162,7 +218,7 @@ public class Graph {
 		path.add(start);
 		path.add(adjacenyList.get(SOURCE).stream().filter(e -> e.to == start.from).findFirst().get());
 		
-		for (int i = 0 ; i < vertMax + 1 && (null != (nextEdge = findNextNonFullEdge(nextVertice, visited, adjacenyList.get(nextVertice)))) && nextVertice != TARGET ; i++ , path.add(nextEdge));
+		for (int i = 0 ; i < vertMax && (null != (nextEdge = findNextNonFullEdge(nextVertice, visited, adjacenyList.get(nextVertice)))) && nextVertice != TARGET ; i++ , path.add(nextEdge));
 		//	Find next edge :
 		//		if [not null] and [next vertice is not the target],
 		// 		then [add next edge in the path] and proceed.
@@ -170,6 +226,7 @@ public class Graph {
 		if (null == nextEdge) // No path available
 			return null;
 		return path;
+		*/
 	}
 	
 	/**
@@ -240,7 +297,6 @@ public class Graph {
 			
 			cut.add(e);
 		}
-		//TODO GET THE MINIMAL CUT
 		return cut;
 	}
 
