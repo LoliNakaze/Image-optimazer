@@ -117,6 +117,14 @@ public class SeamCarving {
 			g = Graph.toGraph(interest(img));
 			g.writeFile(Paths.get("testex.dot"));
 			writepgm (img, "test2.pgm");
+/*
+		Path path = Paths.get("ex1.pgm");
+		int img[][];
+		try {
+			img = readpgm(path);
+			print2DTable (interest(img));
+			writepgm (img, "ex1bis.pgm");
+*/
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
