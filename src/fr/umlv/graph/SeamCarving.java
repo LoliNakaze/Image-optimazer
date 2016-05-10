@@ -76,16 +76,17 @@ public class SeamCarving {
 	}
 
 	public static int[][] interest (int[][] image) {
-		int[] tmp = new int[image.length];
-	
+		int[] tmp = new int[image[0].length];
+//System.out.println(image.length + " " + image[0].length);
 		for (int i = 0 ; i < image.length ; i++) {
 			int j;
 		
 			if (image[i].length >= 2) {
 				tmp[0] = Math.abs(image[i][0] - image[i][1]); 
 	
-				for (j = 1 ; j < image[i].length - 1; j++)
+				for (j = 1 ; j < tmp.length - 1; j++) {
 					tmp[j] = Math.abs(image[i][j] - ((image[i][j-1] + image[i][j+1])/2));
+				}
 		
 				tmp[j] = Math.abs(image[i][j-1] - image[i][j]);
 			}
@@ -93,7 +94,7 @@ public class SeamCarving {
 				tmp[0] = image[i][0];
 			}
 	
-			for (j = 0 ; j < image[i].length ; j++)
+			for (j = 0 ; j < tmp.length ; j++)
 				image[i][j] = tmp[j];
 		}
 	 
@@ -109,7 +110,7 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-		Path path = Paths.get("test.pgm");
+/*		Path path = Paths.get("test.pgm");
 		Graph g;
 		int img[][];
 		try {
@@ -117,14 +118,15 @@ public class SeamCarving {
 			g = Graph.toGraph(interest(img));
 			g.writeFile(Paths.get("testex.dot"));
 			writepgm (img, "test2.pgm");
-/*
+*/
 		Path path = Paths.get("ex1.pgm");
 		int img[][];
+
 		try {
 			img = readpgm(path);
 			print2DTable (interest(img));
 			writepgm (img, "ex1bis.pgm");
-*/
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
