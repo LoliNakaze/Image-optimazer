@@ -57,7 +57,7 @@ public class Graph {
 		Graph g = new Graph (line * col + 2); // on veut un sommet par pixel donc on calcule le nombre de pixel avec itr et on ajoute les deux sommets s et t
 		for (i = 0; i < col; i++){
 			g.addEdge(new Edge(SOURCE, i+1, INFINI , 0));
-			g.addEdge(new Edge ((line - 1) * col + i + 1, g.TARGET, itr[(line - 1)][i], 0));
+			g.addEdge(new Edge (line * col - i, g.TARGET, itr[(line - 1)][(col - 1) - i], 0));
 		}
 		
 		for (i = 1; i <= line; i++){
