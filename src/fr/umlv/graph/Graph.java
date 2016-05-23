@@ -53,30 +53,33 @@ public class Graph {
 	public static Graph toGraph (int [][] itr){
 		int i, j;
 		int line, col;
+		int state;
 		
 		line = itr.length;
 		col = itr[0].length;
 		Graph g = new Graph (line * col + 2); // on veut un sommet par pixel donc on calcule le nombre de pixel avec itr et on ajoute les deux sommets s et t
 		for (i = 0; i < col; i++){
 			g.addEdge(new Edge(SOURCE, i+1, INFINI , 0));
-			g.addEdge(new Edge (line * col - i, g.TARGET, itr[(line - 1)][(col - 1) - i], 0));
+			g.addEdge(new Edge (line * col - i, g.TARGET, itr[(line - 1) - i][(col - 1)], 0));
 		}
 		
 		for (i = 1; i <= line; i++){
 			for (j = 1; j <= col; j++){
-				if (line != i)
-					g.addEdge(new Edge(j, j + col, itr[i-1][j-1], 0));
-				
-				if (col != j && line != i)
-					g.addEdge(new Edge( j, j + col + 1, INFINI, 0));
-				
-				if (1 == i)
-					continue;
-				
-				g.addEdge(new Edge( j, j - col, INFINI, 0));
-				
+				state = i + ((j-1) * line);
+				// Si je ne suis pas sur le bord droit de l'image alors je peux alors l'arc de (i,j) -> (i,j+1)
 				if (col != j)
-					g.addEdge(new Edge( j, j - col - 1, INFINI, 0));
+					g.addEdge(new Edge(state, state + line, itr[i-1][j-1], 0));
+				// Si je ne suis pas sur le bord droit ni sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i+1,j-1)
+				if (1 != j && 1 != i)
+					g.addEdge(new Edge( state, state - line - 1, INFINI, 0));
+				
+				// Si je ne suis pas sur le bord gauche de l'image alors je peux alors l'arc de (i,j) -> (i,j-1)
+				if (1 != j)
+					g.addEdge(new Edge( state,state - line, INFINI, 0));
+				
+				// Si je ne suis pas sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i-1,j-1)
+				if (line != i && 1 != j)
+					g.addEdge(new Edge( state, state - line + 1, INFINI, 0));
 			}
 		}
 		

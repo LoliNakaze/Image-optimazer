@@ -110,23 +110,24 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-/*		Path path = Paths.get("test.pgm");
+		Path path = Paths.get("test.pgm");
 		Graph g;
 		int img[][];
 		try {
 			img = readpgm(path);
 			g = Graph.toGraph(interest(img));
-			g.writeFile(Paths.get("testex.dot"));
+			g.writeFile(Paths.get("testguy.dot"));
 			writepgm (img, "test2.pgm");
-*/
-		Path path = Paths.get("ex1.pgm");
-		int img[][];
 
-		try {
-			img = readpgm(path);
-			print2DTable (interest(img));
-			writepgm (img, "ex1bis.pgm");
-
+//		Path path = Paths.get("ex1.pgm");
+//		int img[][];
+//
+//		try {
+//			img = readpgm(path);
+//			print2DTable (interest(img));
+//			writepgm (img, "ex1bis.pgm");
+//			System.out.println("KK");
+//
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
