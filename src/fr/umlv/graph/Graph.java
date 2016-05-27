@@ -262,9 +262,6 @@ public class Graph {
 			
 			cut.add(e);
 		}
-
-		
-		System.out.println("Cut finished");
 		return cut;
 	}
 

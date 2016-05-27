@@ -146,6 +146,7 @@ public class SeamCarving {
 			img = readpgm(path);
 			reduced = img;
 			
+			System.out.println("0 / " + count);
 			for (int i = 1 ; i <= count ; i++) {
 				int test;
 				
@@ -153,9 +154,7 @@ public class SeamCarving {
 				
 				g = Graph.toGraph(interest(reduced));
 
-				System.out.println("Vertices count: " + g.vertices());
 				tmp = g.minimalCut();
-				System.out.println("\nMinimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
 				
 				reduced = new int[img.length][img[0].length - 1];
 				
@@ -169,6 +168,7 @@ public class SeamCarving {
 					}
 				}
 				img = reduced;
+				System.out.println(i + " / " + count);
 			}
 
 			writepgm (img, "new" + args[0]);
