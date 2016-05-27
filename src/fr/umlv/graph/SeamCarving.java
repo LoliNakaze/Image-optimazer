@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -110,15 +111,24 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-		Path path = Paths.get("test.pgm");
+		Path path = Paths.get("ex2.pgm");
 		Graph g;
 		int img[][];
+		ArrayList<Edge> tmp;
+		System.out.println("Test");
+		
 		try {
 			img = readpgm(path);
 			g = Graph.toGraph(interest(img));
+//			g.fillGraph();
 			g.writeFile(Paths.get("testguy.dot"));
 			writepgm (img, "test2.pgm");
-
+			tmp = g.minimalCut();
+			
+//			tmp.forEach(e -> System.out.println(e));
+			System.out.println("Minimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
+			
+			
 //		Path path = Paths.get("ex1.pgm");
 //		int img[][];
 //

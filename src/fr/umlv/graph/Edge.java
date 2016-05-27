@@ -37,6 +37,10 @@ public class Edge {
 		return (from == v)? to: from;
 	}
 	
+	public String toString () {
+		return this.from + "->" + this.to + "(" + this.used + "/" + this.capacity + ")"; 
+	}
+	
 	public static Edge max (Edge x, Edge y) {
 		return (((x.capacity - x.used) - (y.capacity - y.used)) > 0) ? x : y;
 	}
@@ -52,7 +56,8 @@ public class Edge {
 	 * @param value : The value applied
 	 */
 	public static void modEdge (int current, Edge mod, int value) {
-		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
+//		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
+		mod.used += value;
 	}
 	
 	/**
@@ -68,6 +73,7 @@ public class Edge {
 	 * @return The evaluated plus value of the edge.
 	 */
 	public static int getPlusValueEdge (int current, Edge edge) {
-		return (edge.from == current) ? (edge.capacity - edge.used) : edge.used;
+//		return (edge.from == current) ? (edge.capacity - edge.used) : edge.used;
+		return edge.capacity - edge.used;
 	}
 }
