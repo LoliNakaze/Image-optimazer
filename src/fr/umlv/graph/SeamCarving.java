@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
 public class SeamCarving {
 	public static void writepgm(int [][] image, String filename){
 		try (BufferedWriter writer = new BufferedWriter( new FileWriter(new File(filename)))){
@@ -110,24 +109,53 @@ public class SeamCarving {
 		}
 	}
 	
+	private static boolean toRemoveAt (int i, ArrayList<Edge> a) {
+		return a.stream().anyMatch(e -> e.from == i);
+	}
+	
 	public static void main(String[] args) {
-		Path path = Paths.get("ex2.pgm");
+		Path path = Paths.get("ex3.pgm"); // TODO Image arg
 		Graph g;
 		int img[][];
-		ArrayList<Edge> tmp;
-		System.out.println("Test");
+		int reduced[][];
+		ArrayList<Edge> tmp = new ArrayList<>();
+//		System.out.println("Test");
 		
 		try {
-			img = readpgm(path);
-			g = Graph.toGraph(interest(img));
-//			g.fillGraph();
-			g.writeFile(Paths.get("testguy.dot"));
-			writepgm (img, "test2.pgm");
-			tmp = g.minimalCut();
-			
-//			tmp.forEach(e -> System.out.println(e));
-			System.out.println("Minimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
-			
+			for (int i = 0 ; i < 50 ; i++) {//TODO Limite max arg
+				img = readpgm(path);
+				
+				//TODO Awful
+				if (img.length - i <= 0) break;
+				
+				
+				if (i > 0) {
+					int test;
+					reduced = new int[img.length - i][img[0].length];
+					
+					// Copy new image
+					for (int j = 0 ; j < reduced.length ; j++) {						
+						test = 0;
+						
+						for (int k = 0 ; k < reduced[0].length ; k++) {
+							test = (toRemoveAt(k*reduced.length + j + 1, tmp)) ? 1: 0;
+							reduced[j][k] = img[j + test][k];
+						}
+					}
+				}
+				else {
+					reduced = img;
+				}
+				g = Graph.toGraph(interest(reduced));
+//				g.fillGraph();
+//				g.writeFile(Paths.get("testguy.dot"));
+//				writepgm (img, "test2.pgm");
+				System.out.println("Vertices count: " + g.vertices());
+				tmp = g.minimalCut();
+//				tmp.forEach(e -> System.out.println(e));
+//				tmp.stream().forEach(e -> System.out.print(((e.used > 0) ? "(" + e.from + "," + e.used + ") " : "")));
+				System.out.println("\nMinimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
+			}
 			
 //		Path path = Paths.get("ex1.pgm");
 //		int img[][];
@@ -142,6 +170,6 @@ public class SeamCarving {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("OK");
+//		System.out.println("OK");
 	}
 }
