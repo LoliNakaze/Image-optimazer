@@ -12,6 +12,11 @@ import java.util.Scanner;
 
 
 public class SeamCarving {
+	/**
+	 * Create a pgm file with a 2D tab.
+	 * @param image the 2D tab of the image
+	 * @param filename the name of the new pgm file
+	 */
 	public static void writepgm(int [][] image, String filename){
 		try (BufferedWriter writer = new BufferedWriter( new FileWriter(new File(filename)))){
 			int i, j;
@@ -48,6 +53,12 @@ public class SeamCarving {
 		return max;		
 	}
 	
+	/**
+	 * Read a pgm file and return a 2D tab of the file.
+	 * @param path where is the file.
+	 * @return a 2D tab of the image
+	 * @throws IOException throw an IOException
+	 */
 	public static int[][] readpgm(Path path) throws IOException {
 		try(BufferedReader reader = Files.newBufferedReader(path)) {
 			reader.readLine();// magic
@@ -75,6 +86,11 @@ public class SeamCarving {
 		}
 	}
 
+	/**
+	 * Create a new 2D tab with the interest calculated from the pix of the image.
+	 * @param image the 2D tab with the value of each pix
+	 * @return a 2D tab of the interest of the image.
+	 */
 	public static int[][] interest (int[][] image) {
 		int[] tmp = new int[image[0].length];
 //System.out.println(image.length + " " + image[0].length);
@@ -101,6 +117,10 @@ public class SeamCarving {
 		return image; 
 	}
 
+	/**
+	 * Print in the console the 2D tab given in argument
+	 * @param table the 2D tab you want to print.
+	 */
 	public static void print2DTable (int table[][]) {
 		for (int i = 0 ; i < table.length ; i++) {
 			for (int j = 0 ; j < table[i].length ; j++)

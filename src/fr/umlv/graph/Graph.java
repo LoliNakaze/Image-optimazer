@@ -17,7 +17,12 @@ public class Graph {
 	private final static int SOURCE = 0;
 	private final int TARGET;
 
-	
+	/**
+	 * The Constructor of the Class Graph.java.
+	 * return A Graph with the number of vertices given in parameters. <br>
+	 * The source is the vertex 0 and the target is the last vertex.
+	 * @param vertexCount the number of vertices in the graph.
+	 */
 	public Graph(int vertexCount) {
 		TARGET = vertexCount - 1;
 		adjacenyList = new ArrayList<>(vertexCount);
@@ -26,19 +31,35 @@ public class Graph {
 			adjacenyList.add(new ArrayList<>());
 	}
 	
+	/**
+	 * The methode to have the number of vertex in the graph.
+	 * @return the number of vertices in the graph.
+	 */
 	public int vertices() {
 		return adjacenyList.size();
 	}
 	
+	/**
+	 * This methode add an Edge in the list in the graph.
+	 * @param edge the edge you want to add in the graph.
+	 */
 	public void addEdge(Edge edge) {
 		adjacenyList.get(edge.from).add(edge);
 		adjacenyList.get(edge.to).add(edge);
 	}
 	
+	/**
+	 * 
+	 * @param vertex the vertex you want to have all the vertices.
+	 * @return the list of the Edge for the vertex given in argument.
+	 */
 	public Iterable<Edge> adjacent(int vertex) {
 		return adjacenyList.get(vertex);
 	}
-	
+	/**
+	 * 
+	 * @return List of all the edges in the graph.
+	 */
 	public Iterable<Edge> edges() {
 		ArrayList<Edge> list = new ArrayList<>();
 		for (int vertex = 0; vertex < vertices(); vertex++) {
@@ -50,6 +71,12 @@ public class Graph {
 		return list;
 	}
 	
+	/**
+	 * Convert a 2D tab of interest and creat a graph with the tab <br>
+	 * and fill the edges with the good interest
+	 * @param itr take a 2D tab of interest
+	 * @return the graph created with the 2D tab of interest
+	 */
 	public static Graph toGraph (int [][] itr){
 		int i, j;
 		int line, col;
@@ -58,9 +85,9 @@ public class Graph {
 		line = itr.length;
 		col = itr[0].length;
 		Graph g = new Graph (line * col + 2); // on veut un sommet par pixel donc on calcule le nombre de pixel avec itr et on ajoute les deux sommets s et t
-		for (i = 0; i < col; i++){
+		for (i = 0; i < line; i++){
 			g.addEdge(new Edge(SOURCE, i+1, INFINI , 0));
-			g.addEdge(new Edge (line * col - i, g.TARGET, itr[(line - 1) - i][(col - 1)], 0));
+			g.addEdge(new Edge ((line * col) - i, g.TARGET, itr[(line - 1) - i][(col - 1)], 0));
 		}
 		
 		for (i = 1; i <= line; i++){
@@ -241,14 +268,24 @@ public class Graph {
 		return adjacent.stream().filter(e -> e.capacity != INFINI).findFirst().get();
 	}
 	
+	/**
+	 *  
+	 * @param edge
+	 * @return if the edge is full
+	 */
 	private boolean maxedEdge (Edge edge) {
 		return edge.capacity == edge.used;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getCurrentStreamValue () {
 		return adjacenyList.get(TARGET).stream().map(e -> e.used).reduce(0, Integer::sum);
 	}
 	
+
 	private void fillGraph () {
 		ArrayList<Edge> path;
 		
@@ -303,6 +340,11 @@ public class Graph {
 		return cut;
 	}
 
+	/**
+	 * Create a file of the graph.
+	 * @param path the path of the file.
+	 * @throws IOException throw an IOException
+	 */
 	public void writeFile(Path path) throws IOException {
 		try(BufferedWriter writer = Files.newBufferedWriter(path);
 			PrintWriter printer = new PrintWriter(writer)) {
