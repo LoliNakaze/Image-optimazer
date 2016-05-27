@@ -69,12 +69,35 @@ public class Edge {
 		return (from == v)? to: from;
 	}
 	
+	@Override
+	public String toString () {
+		return this.from + "->" + this.to + "(" + this.used + "/" + this.capacity + ")"; 
+	}
+	
+	@Override
+	public boolean equals (Object o) {
+		if (o instanceof Edge) {
+			Edge e = (Edge) o;
+			return this.capacity == e.capacity
+				&& this.from == e.from
+				&& this.to == e.to
+				&& this.used == e.used;
+		}
+		return false;
+	}
+	
+	public boolean isMaxed () {
+		return capacity == used;
+	}
+	
+
 	/**
 	 * Compare the two edges in argument and return the edge who sill have the bigger capacity  <br>
 	 * @param x the first edge
 	 * @param y the second edge
 	 * @return the edge who still has the bigger capacity
 	 */
+
 	public static Edge max (Edge x, Edge y) {
 		return (((x.capacity - x.used) - (y.capacity - y.used)) > 0) ? x : y;
 	}
@@ -90,7 +113,9 @@ public class Edge {
 	 * @param value : The value applied
 	 */
 	public static void modEdge (int current, Edge mod, int value) {
-		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
+//		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
+//		mod.used += value;
+		mod.used += (mod.from == current) ? value : -value;
 	}
 	
 	/**
@@ -102,10 +127,10 @@ public class Edge {
 	 * - the used capacity otherwise.<br>
 	 * <br>
 	 * @param current : The current vertice
-	 * @param edge : The edge who needs evaluation.
 	 * @return The evaluated plus value of the edge.
 	 */
-	public static int getPlusValueEdge (int current, Edge edge) {
-		return (edge.from == current) ? (edge.capacity - edge.used) : edge.used;
+	public int getPlusValueEdge (int current) {
+		return (from == current) ? (capacity - used) : used;
+//		return edge.capacity - edge.used;
 	}
 }

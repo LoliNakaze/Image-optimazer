@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Scanner;
-
 
 public class SeamCarving {
 	/**
@@ -92,26 +92,22 @@ public class SeamCarving {
 	 * @return a 2D tab of the interest of the image.
 	 */
 	public static int[][] interest (int[][] image) {
-		int[] tmp = new int[image[0].length];
+		int[][] tmp = new int[image.length][image[0].length];
 //System.out.println(image.length + " " + image[0].length);
 		for (int i = 0 ; i < image.length ; i++) {
 			int j;
-		
 			if (image[i].length >= 2) {
-				tmp[0] = Math.abs(image[i][0] - image[i][1]); 
+				tmp[i][0] = Math.abs(image[i][0] - image[i][1]); 
 	
 				for (j = 1 ; j < tmp.length - 1; j++) {
-					tmp[j] = Math.abs(image[i][j] - ((image[i][j-1] + image[i][j+1])/2));
+					tmp[i][j] = Math.abs(image[i][j] - ((image[i][j-1] + image[i][j+1])/2));
 				}
 		
-				tmp[j] = Math.abs(image[i][j-1] - image[i][j]);
+				tmp[i][j] = Math.abs(image[i][j-1] - image[i][j]);
 			}
 			else {
-				tmp[0] = image[i][0];
+				tmp[i][0] = image[i][0];
 			}
-	
-			for (j = 0 ; j < tmp.length ; j++)
-				image[i][j] = tmp[j];
 		}
 	 
 		return image; 
@@ -129,29 +125,58 @@ public class SeamCarving {
 		}
 	}
 	
+	private static boolean toRemoveAt (int i, ArrayList<Edge> a) {
+		return a.stream().anyMatch(e -> e.from == i);
+	}
+	
 	public static void main(String[] args) {
-		Path path = Paths.get("test.pgm");
+		if (args.length != 2){
+			System.err.println("Usage : java ./SeamCarving [image path] [number of pixels]");
+			return;
+		}
+		Path path = Paths.get(args[0]); // TODO Image arg
 		Graph g;
 		int img[][];
+		int reduced[][];
+		int count = Integer.parseInt(args[1]);
+		ArrayList<Edge> tmp = new ArrayList<>();
+//		System.out.println("Test");
+		
 		try {
 			img = readpgm(path);
-			g = Graph.toGraph(interest(img));
-			g.writeFile(Paths.get("testguy.dot"));
-			writepgm (img, "test2.pgm");
+			reduced = img;
+			
+			for (int i = 0 ; i < count ; i++) {//TODO Limite max arg
+				int test;
+				
+				//TODO Awful
+				if (img.length - i <= 0) break;
+				
+				g = Graph.toGraph(interest(reduced));
 
-//		Path path = Paths.get("ex1.pgm");
-//		int img[][];
-//
-//		try {
-//			img = readpgm(path);
-//			print2DTable (interest(img));
-//			writepgm (img, "ex1bis.pgm");
-//			System.out.println("KK");
-//
+				System.out.println("Vertices count: " + g.vertices());
+				tmp = g.minimalCut();
+				System.out.println("\nMinimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
+				
+				reduced = new int[img.length][img[0].length - i];
+				
+				// Copy new image
+				for (int j = 0 ; j < reduced.length ; j++) {						
+					test = 0;
+					
+					for (int k = 0 ; k < reduced[0].length ; k++) {
+						if (toRemoveAt(k*reduced.length + j + 1, tmp)) test++;
+						reduced[j][k] = img[j][k + test];
+					}
+				}
+				img = reduced;
+			}
+
+			writepgm (img, "new" + args[0]);
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("OK");
+		System.out.println("Generation ended.");
 	}
 }

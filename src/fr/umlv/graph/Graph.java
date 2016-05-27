@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -85,9 +86,9 @@ public class Graph {
 		line = itr.length;
 		col = itr[0].length;
 		Graph g = new Graph (line * col + 2); // on veut un sommet par pixel donc on calcule le nombre de pixel avec itr et on ajoute les deux sommets s et t
-		for (i = 0; i < line; i++){
-			g.addEdge(new Edge(SOURCE, i+1, INFINI , 0));
-			g.addEdge(new Edge ((line * col) - i, g.TARGET, itr[(line - 1) - i][(col - 1)], 0));
+		for (i = 1; i <= line; i++){
+			g.addEdge(new Edge(SOURCE, i, INFINI , 0));
+			g.addEdge(new Edge (g.TARGET - i, g.TARGET, itr[line - i][(col - 1)], 0));
 		}
 		
 		for (i = 1; i <= line; i++){
@@ -96,7 +97,7 @@ public class Graph {
 				// Si je ne suis pas sur le bord droit de l'image alors je peux alors l'arc de (i,j) -> (i,j+1)
 				if (col != j)
 					g.addEdge(new Edge(state, state + line, itr[i-1][j-1], 0));
-				// Si je ne suis pas sur le bord droit ni sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i+1,j-1)
+				// Si je ne suis pas sur le bord gauche ni sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i-1,j-1)
 				if (1 != j && 1 != i)
 					g.addEdge(new Edge( state, state - line - 1, INFINI, 0));
 				
@@ -104,66 +105,13 @@ public class Graph {
 				if (1 != j)
 					g.addEdge(new Edge( state,state - line, INFINI, 0));
 				
-				// Si je ne suis pas sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i-1,j-1)
+				// Si je ne suis pas sur le bord bas de l'image alors je peux alors l'arc de (i,j) -> (i+1,j-1)
 				if (line != i && 1 != j)
 					g.addEdge(new Edge( state, state - line + 1, INFINI, 0));
 			}
 		}
 		
 		return g;		
-	}
-
-	/**
-	 * Find the next edge to take, by choosing the one with :<br>
-	 * <li>the greatest capacity, if it's an edge from <b>current</b><br>
-	 * <li>the most used capacity, if it's an edge to <b>current</b><br>
-	 * <li>any other possible edge otherwise<br>
-	 * <br>
-	 * Can return <i>null</i> if there is no edge available.<br>
-	 * <br>
-	 * @param current : The current vertice
-	 * @param visited : The table of the visited vertices, or currently in the constructed path.
-	 * @param list : The list of edges adjacent to the current vertice.
-	 * @return The next edge of the path
-	 */
-	private Edge findNextNonFullEdge (int current, boolean visited[], ArrayList<Edge> list) {
-		Edge max = null;		// Index of the element that has the max augment value
-		int val = 0; 			// Max augment value
-		
-		visited[current] = true;
-		
-		for (int i = 1 ; i < list.size() ; i++) {
-			Edge e = list.get(i);
-			
-			if (e.from == current) { // Edge that has current as its origin
-				if (!visited[e.to]) { // Destination already visited ?
-					int augmentValue;
-					if (INFINI != e.capacity &&	((augmentValue = (e.capacity - e.used)) > 0)) { // Edge not full
-						if (val < augmentValue) {
-							max = e;
-							val = augmentValue;
-						}
-					}
-				}
-			}
-			else { // Other types of edge
-				if (!visited[e.from])
-					if (val < e.used) { // Is there something to take off ?
-						max = e;
-						val = e.used;
-					}
-			}
-		}
-		
-		if (null == max) {
-			Optional<Edge> tmp = list	.stream()
-										.filter(e -> (e.from == current && !visited[e.to] && INFINI == e.capacity))
-										.findFirst();
-			
-			return tmp.orElse(null);
-		}
-			
-		return max;
 	}
 	
 	/**
@@ -172,11 +120,9 @@ public class Graph {
 	 * @return Returns the edge which links source and other.<br>
 	 * Returns <i>null</i> if the edge doesn't exist.
 	 */
-	private Edge findEdge (int source, int other) {
-		Iterable<Edge> tmp = adjacent(source);
-		
-		for (Edge edge : tmp) {
-			if (edge.from == other || edge.to == other) {
+	private Edge findEdge (int source, int other) {		
+		for (Edge edge : adjacent(source)) {
+			if ((edge.to == other && edge.getPlusValueEdge(source) != 0) || (edge.from == other && edge.getPlusValueEdge(other) != 0)) {
 				return edge;
 			}
 		}
@@ -188,75 +134,53 @@ public class Graph {
 	 * Finds a path from the source to the target, by taking the largest edge available.
 	 * @return The list of edges of the path.
 	 */
-	private ArrayList<Edge> findPath () {
-		ArrayList<Edge> path = new ArrayList<>();
+	private LinkedList<Edge> findPath () {
+		LinkedList<Edge> path = new LinkedList<>();
 		int vertMax = vertices();
-//		boolean visited[] = new boolean [vertMax]; // Init: false
+		boolean visited[] = new boolean [vertMax]; // Init: false
 		int father[] = new int[vertMax];
 		int next;
+		int oth;
 		
 		Queue<Integer> queue = new PriorityQueue<>();
-//		Edge nextEdge = null;
-//		int nextVertice;
 		int i;
 		
 		// Init
-		for (i = 0 ; i < vertMax ; i++) {
+		for (i = 1 ; i < vertMax ; i++) {
 			father[i] = -1;
 		}
 		
 		// Source
 		queue.add(SOURCE);
+		father[SOURCE] = SOURCE;
 		
 		while (father[TARGET] == -1 && false == queue.isEmpty()) {
 			next = queue.poll();
-//			visited[next] = true;
-			Iterable<Edge> tmp = adjacent(next);
+			visited[next] = true;
 			
-			for (Edge edge : tmp) {
-				if (father[edge.to] == -1) { // Not visited
-					queue.add(edge.to);
-					father[edge.to] = next;
+			for (Edge edge : adjacent(next)) {
+				oth = edge.other(next);
+				if (edge.getPlusValueEdge(next) != 0 && !visited[oth]) { // Not visited and edge not full
+//					if( oth == 221862 ) System.out.println(edge + "Flot max = " + edge.getPlusValueEdge(next) +
+//					"\n Flot max = " + edge.getPlusValueEdge(oth));
+					queue.add(oth);
+					father[oth] = next;
 				}
 			}
 		}
 		
 		if (father[TARGET] != -1) {
 			next = TARGET;
-			
+			Edge e;
 			while (next != SOURCE) {
-				path.add(findEdge(next, father[next]));
+				path.addFirst(e = findEdge(father[next], next));
+//				if(e.getPlusValueEdge(e.other(next)) <= 0) System.out.println(e + "AAAA");
+				next = father[next];
 			}
 			
 			return path;
 		}
 		return null; // No path found.
-		
-		// Choose first element
-		/*
-		ArrayList<Edge> list = new ArrayList<>();
-		for (Edge edge : adjacent(SOURCE)) { // For each left vertice
-			Edge to = adjacenyList.get(edge.to).stream().filter(x -> edge.to == x.from).findFirst().get();
-			
-			list.add(to);
-		}
-		
-		Edge start = list.stream().reduce(list.get(0), Edge::max);
-		if (start.capacity == start.used)
-			return null; // No path available
-		nextVertice = start.to;
-		path.add(start);
-		path.add(adjacenyList.get(SOURCE).stream().filter(e -> e.to == start.from).findFirst().get());
-		
-		for (int i = 0 ; i < vertMax && (null != (nextEdge = findNextNonFullEdge(nextVertice, visited, adjacenyList.get(nextVertice)))) && nextVertice != TARGET ; i++ , path.add(nextEdge));
-		//	Find next edge :
-		//		if [not null] and [next vertice is not the target],
-		// 		then [add next edge in the path] and proceed.
-		
-		if (null == nextEdge) // No path available
-			return null;
-		return path;
-		*/
 	}
 	
 	/**
@@ -264,48 +188,35 @@ public class Graph {
 	 * @param adjacent : an ArrayList of adjacent edges.
 	 * @return A finite Edge.
 	 */
-	private Edge nextFiniteEdge (ArrayList<Edge> adjacent) {
-		return adjacent.stream().filter(e -> e.capacity != INFINI).findFirst().get();
+
+	private Edge nextFiniteEdge (int current) {
+		return adjacenyList.get(current).stream().filter(e -> e.capacity != INFINI && e.from == current).findFirst().get();
 	}
 	
-	/**
-	 *  
-	 * @param edge
-	 * @return if the edge is full
-	 */
-	private boolean maxedEdge (Edge edge) {
-		return edge.capacity == edge.used;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public int getCurrentStreamValue () {
-		return adjacenyList.get(TARGET).stream().map(e -> e.used).reduce(0, Integer::sum);
-	}
-	
-
-	private void fillGraph () {
-		ArrayList<Edge> path;
-		
+	void fillGraph () {
+		LinkedList<Edge> path;		
 		while (null != (path = findPath())) { // While there is a positive path
 			int min = INFINI;
 			int last = path.get(0).from;
 			Iterator<Edge> it = path.iterator();
 			
+//			path.forEach(e -> System.out.println(e));
+			
 			while (it.hasNext()) {
 				Edge edge = it.next();
-				int plusValue = Edge.getPlusValueEdge(last, edge);
-				
+				int plusValue = edge.getPlusValueEdge(last);
+//				System.out.println(edge + "Last = " + last +"/PV = " + plusValue);
 				last = edge.other(last);
 				
-				if (min > plusValue)
+				if (min > plusValue) {
 					min = plusValue;
+				}
 			}
-			
+//			System.out.println(path);
 			// Here, minimum get!
 			last = path.get(0).from;
+			
+//			System.out.println("MIN = " + min);
 			
 			it = path.iterator();
 			while (it.hasNext()) {
@@ -315,6 +226,8 @@ public class Graph {
 				
 				last = edge.other(last);
 			}
+			
+//			path.forEach(e -> System.out.println(e));
 		}
 	}
 	
@@ -324,19 +237,50 @@ public class Graph {
 	 */
 	public ArrayList<Edge> minimalCut () {
 		ArrayList<Edge> cut = new ArrayList <>();
+		boolean visited[] = new boolean[vertices()];
+		Queue<Integer> queue = new PriorityQueue<>();
+		int verticetmp;
 		
 		fillGraph();
+		System.out.println("Flot max: " + adjacenyList.get(TARGET).stream().map(e -> e.used).reduce(0, Integer::sum));
+		System.out.println("Graph filled");
 		// When there is no path found, the minimal cut can be found.
-		for (int i = 0 ; i < adjacenyList.get(SOURCE).size() ; i++) {
-			ArrayList<Edge> tmp = adjacenyList.get(adjacenyList.get(SOURCE).get(i).to);
+		queue.add(SOURCE);
+		visited[SOURCE] = true;
+		while (!queue.isEmpty()) {
+			verticetmp = queue.poll();
+			for (Edge edge : adjacenyList.get(verticetmp)) {
+				if (!edge.isMaxed() && edge.from == verticetmp && !visited[edge.to]) {
+				/* From a given vertex and an edge, add the next vertex if :
+				 * the edge is not full,
+				 * the next vertex is not visited
+				 * the source of the edge is the current vertex 
+				 */
+					visited[edge.to] = true;
+					queue.add(edge.to);
+				}
+			}
+		}
+		
+//		if (visited[TARGET] == true) System.out.println("error2");
+		for (int i = 1 ; i <= adjacenyList.get(SOURCE).size() ; i++) {
 			Edge e;
+			int current = i;
 			
-			while (!maxedEdge (e = nextFiniteEdge(tmp))) {
-				tmp = adjacenyList.get(e.other(e.from));
+//			tmp.forEach(x -> System.out.println(x));
+			while (!(e = nextFiniteEdge(current)).isMaxed() || visited[e.to]) { // Arc de S (visité) à T (non visité) plein : arc à ajouter
+				current = e.to;
+//				if (current == TARGET) System.out.println("error");
+//				System.out.println("Test :" + current);
+				
 			}
 			
 			cut.add(e);
+//			System.out.println("i = " + i);
 		}
+
+		
+		System.out.println("Cut finished");
 		return cut;
 	}
 
