@@ -93,7 +93,7 @@ public class SeamCarving {
 	 */
 	public static int[][] interest (int[][] image) {
 		int[][] tmp = new int[image.length][image[0].length];
-//System.out.println(image.length + " " + image[0].length);
+		
 		for (int i = 0 ; i < image.length ; i++) {
 			int j;
 			if (image[i].length >= 2) {
@@ -134,7 +134,7 @@ public class SeamCarving {
 			System.err.println("Usage : java ./SeamCarving [image path] [number of pixels]");
 			return;
 		}
-		Path path = Paths.get(args[0]); // TODO Image arg
+		Path path = Paths.get(args[0]);
 		Graph g;
 		int img[][];
 		int reduced[][];
@@ -146,10 +146,9 @@ public class SeamCarving {
 			img = readpgm(path);
 			reduced = img;
 			
-			for (int i = 1 ; i <= count ; i++) {//TODO Limite max arg
+			for (int i = 1 ; i <= count ; i++) {
 				int test;
 				
-				//TODO Awful
 				if (img.length - i <= 0) break;
 				
 				g = Graph.toGraph(interest(reduced));

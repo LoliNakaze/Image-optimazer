@@ -33,7 +33,7 @@ public class Graph {
 	}
 	
 	/**
-	 * The methode to have the number of vertex in the graph.
+	 * The method to have the number of vertex in the graph.
 	 * @return the number of vertices in the graph.
 	 */
 	public int vertices() {
@@ -41,7 +41,7 @@ public class Graph {
 	}
 	
 	/**
-	 * This methode add an Edge in the list in the graph.
+	 * This method add an Edge in the list in the graph.
 	 * @param edge the edge you want to add in the graph.
 	 */
 	public void addEdge(Edge edge) {
@@ -57,6 +57,7 @@ public class Graph {
 	public Iterable<Edge> adjacent(int vertex) {
 		return adjacenyList.get(vertex);
 	}
+	
 	/**
 	 * 
 	 * @return List of all the edges in the graph.
@@ -73,7 +74,7 @@ public class Graph {
 	}
 	
 	/**
-	 * Convert a 2D tab of interest and creat a graph with the tab <br>
+	 * Convert a 2D tab of interest and create a graph with the tab <br>
 	 * and fill the edges with the good interest
 	 * @param itr take a 2D tab of interest
 	 * @return the graph created with the 2D tab of interest
@@ -115,8 +116,8 @@ public class Graph {
 	}
 	
 	/**
-	 * @param source One vertice.
-	 * @param other The other vertice.
+	 * @param source One vertex.
+	 * @param other The other vertex.
 	 * @return Returns the edge which links source and other.<br>
 	 * Returns <i>null</i> if the edge doesn't exist.
 	 */
@@ -161,8 +162,6 @@ public class Graph {
 			for (Edge edge : adjacent(next)) {
 				oth = edge.other(next);
 				if (edge.getPlusValueEdge(next) != 0 && !visited[oth]) { // Not visited and edge not full
-//					if( oth == 221862 ) System.out.println(edge + "Flot max = " + edge.getPlusValueEdge(next) +
-//					"\n Flot max = " + edge.getPlusValueEdge(oth));
 					queue.add(oth);
 					father[oth] = next;
 				}
@@ -171,10 +170,8 @@ public class Graph {
 		
 		if (father[TARGET] != -1) {
 			next = TARGET;
-			Edge e;
 			while (next != SOURCE) {
-				path.addFirst(e = findEdge(father[next], next));
-//				if(e.getPlusValueEdge(e.other(next)) <= 0) System.out.println(e + "AAAA");
+				path.addFirst(findEdge(father[next], next));
 				next = father[next];
 			}
 			
@@ -200,23 +197,19 @@ public class Graph {
 			int last = path.get(0).from;
 			Iterator<Edge> it = path.iterator();
 			
-//			path.forEach(e -> System.out.println(e));
-			
+			// Get the minimum value of the path
 			while (it.hasNext()) {
 				Edge edge = it.next();
 				int plusValue = edge.getPlusValueEdge(last);
-//				System.out.println(edge + "Last = " + last +"/PV = " + plusValue);
 				last = edge.other(last);
 				
 				if (min > plusValue) {
 					min = plusValue;
 				}
 			}
-//			System.out.println(path);
-			// Here, minimum get!
-			last = path.get(0).from;
 			
-//			System.out.println("MIN = " + min);
+			// Change the value of each of the edges of the path.
+			last = path.get(0).from;
 			
 			it = path.iterator();
 			while (it.hasNext()) {
@@ -226,8 +219,6 @@ public class Graph {
 				
 				last = edge.other(last);
 			}
-			
-//			path.forEach(e -> System.out.println(e));
 		}
 	}
 	
@@ -242,8 +233,7 @@ public class Graph {
 		int verticetmp;
 		
 		fillGraph();
-		System.out.println("Flot max: " + adjacenyList.get(TARGET).stream().map(e -> e.used).reduce(0, Integer::sum));
-		System.out.println("Graph filled");
+
 		// When there is no path found, the minimal cut can be found.
 		queue.add(SOURCE);
 		visited[SOURCE] = true;
@@ -262,21 +252,15 @@ public class Graph {
 			}
 		}
 		
-//		if (visited[TARGET] == true) System.out.println("error2");
 		for (int i = 1 ; i <= adjacenyList.get(SOURCE).size() ; i++) {
 			Edge e;
 			int current = i;
 			
-//			tmp.forEach(x -> System.out.println(x));
 			while (!(e = nextFiniteEdge(current)).isMaxed() || visited[e.to]) { // Arc de S (visité) à T (non visité) plein : arc à ajouter
-				current = e.to;
-//				if (current == TARGET) System.out.println("error");
-//				System.out.println("Test :" + current);
-				
+				current = e.to;				
 			}
 			
 			cut.add(e);
-//			System.out.println("i = " + i);
 		}
 
 		

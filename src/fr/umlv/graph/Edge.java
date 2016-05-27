@@ -113,8 +113,6 @@ public class Edge {
 	 * @param value : The value applied
 	 */
 	public static void modEdge (int current, Edge mod, int value) {
-//		mod.setUsed(mod.getUsed() + ((mod.from == current) ? value : -value));
-//		mod.used += value;
 		mod.used += (mod.from == current) ? value : -value;
 	}
 	
@@ -122,15 +120,14 @@ public class Edge {
 	 * Returns the plus value of the <b>edge</b>.<br>
 	 * <br>
 	 * The plus value is the amount earnable using this edge.<br>
-	 * It is calculated whether the <b>current</b> vertice is the source of this edge:<br>
+	 * It is calculated whether the <b>current</b> vertex is the source of this edge:<br>
 	 * - the difference between the capacity and the used capacity, if it is,<br>
 	 * - the used capacity otherwise.<br>
 	 * <br>
-	 * @param current : The current vertice
+	 * @param current : The current vertex
 	 * @return The evaluated plus value of the edge.
 	 */
 	public int getPlusValueEdge (int current) {
 		return (from == current) ? (capacity - used) : used;
-//		return edge.capacity - edge.used;
 	}
 }
