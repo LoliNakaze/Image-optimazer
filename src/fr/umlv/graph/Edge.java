@@ -98,8 +98,8 @@ public class Edge {
 	 * <br>
 	 * The plus value is the amount earnable using this edge.<br>
 	 * It is calculated whether the <b>current</b> vertice is the source of this edge:<br>
-	 * <li> the difference between the capacity and the used capacity, if it is,<br>
-	 * <li> the used capacity otherwise.<br>
+	 * - the difference between the capacity and the used capacity, if it is,<br>
+	 * - the used capacity otherwise.<br>
 	 * <br>
 	 * @param current : The current vertice
 	 * @param edge : The edge who needs evaluation.
