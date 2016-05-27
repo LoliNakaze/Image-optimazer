@@ -99,7 +99,7 @@ public class SeamCarving {
 			if (image[i].length >= 2) {
 				tmp[i][0] = Math.abs(image[i][0] - image[i][1]); 
 	
-				for (j = 1 ; j < tmp.length - 1; j++) {
+				for (j = 1 ; j < tmp[i].length - 1; j++) {
 					tmp[i][j] = Math.abs(image[i][j] - ((image[i][j-1] + image[i][j+1])/2));
 				}
 		
@@ -110,7 +110,7 @@ public class SeamCarving {
 			}
 		}
 	 
-		return image; 
+		return tmp; 
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class SeamCarving {
 			img = readpgm(path);
 			reduced = img;
 			
-			for (int i = 0 ; i < count ; i++) {//TODO Limite max arg
+			for (int i = 1 ; i <= count ; i++) {//TODO Limite max arg
 				int test;
 				
 				//TODO Awful
@@ -158,14 +158,14 @@ public class SeamCarving {
 				tmp = g.minimalCut();
 				System.out.println("\nMinimal cut value:" + tmp.stream().map(e -> e.used).reduce(0, Integer::sum));
 				
-				reduced = new int[img.length][img[0].length - i];
+				reduced = new int[img.length][img[0].length - 1];
 				
 				// Copy new image
 				for (int j = 0 ; j < reduced.length ; j++) {						
 					test = 0;
 					
 					for (int k = 0 ; k < reduced[0].length ; k++) {
-						if (toRemoveAt(k*reduced.length + j + 1, tmp)) test++;
+						if (toRemoveAt(k*reduced.length + j + 1, tmp)) test=1;
 						reduced[j][k] = img[j][k + test];
 					}
 				}
